@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from 'styled-components/macro';
+import React from "react";
+import styled from "styled-components/macro";
 
-import { COLORS, WEIGHTS } from '../../constants';
-import { formatPrice, pluralize, isNewShoe } from '../../utils';
-import Spacer from '../Spacer';
+import { COLORS, WEIGHTS } from "../../constants";
+import { formatPrice, pluralize, isNewShoe } from "../../utils";
+import Spacer from "../Spacer";
 
 const ShoeCard = ({
   slug,
@@ -40,12 +40,18 @@ const ShoeCard = ({
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
-          <Price>{formatPrice(price)}</Price>
+          <Price oldPrice={!!salePrice}>{formatPrice(price)}</Price>
         </Row>
         <Row>
-          <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          <ColorInfo>{pluralize("Color", numOfColors)}</ColorInfo>
+          {salePrice && <Price onSale={true}>{formatPrice(salePrice)}</Price>}
         </Row>
       </Wrapper>
+      {variant !== "default" && (
+        <VariantLabel variant={variant}>
+          {variant === "on-sale" ? "Sale" : "Just released!"}
+        </VariantLabel>
+      )}
     </Link>
   );
 };
@@ -53,18 +59,45 @@ const ShoeCard = ({
 const Link = styled.a`
   text-decoration: none;
   color: inherit;
+  position: relative;
 `;
 
 const Wrapper = styled.article``;
 
-const ImageWrapper = styled.div`
-  position: relative;
+const VariantLabel = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: ${COLORS.white};
+  width: fit-content;
+  font-weight: 700;
+  font-size: ${14 / 16}em;
+  padding: 8px 10px;
+  background-color: ${(p) => {
+    switch (p.variant) {
+      case "on-sale":
+        return "#C5295D";
+      case "new-release":
+        return "#6868D9";
+      default:
+        return COLORS.primary;
+    }
+  }};
 `;
 
-const Image = styled.img``;
+const ImageWrapper = styled.div`
+  position: relative;
+  max-width: 400px;
+`;
+
+const Image = styled.img`
+  width: 100%;
+`;
 
 const Row = styled.div`
   font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const Name = styled.h3`
@@ -72,7 +105,17 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+  color: ${(p) => {
+    if (p.onSale) {
+      return "#C5295D";
+    } else if (p.oldPrice) {
+      return "#60666C";
+    }
+    return undefined;
+  }};
+  text-decoration-line: ${(p) => p.oldPrice && "line-through"};
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
